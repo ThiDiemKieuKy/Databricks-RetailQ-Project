@@ -1,0 +1,53 @@
+# A sample job for retailq_project_bundle.
+
+resources:
+  jobs:
+    retailq_project_orchestrator:
+      name: retailq_project_orchestrator
+
+      trigger:
+        # Run this job every day, exactly one day from the last run; see https://docs.databricks.com/api/workspace/jobs/create#trigger
+        periodic:
+          interval: 1
+          unit: DAYS
+
+      email_notifications:
+        on_failure:
+          - kieu.ky@outlook.com
+
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+        - name: bronze_schema
+          default: ${var.bronze_schema}
+        - name: silver_schema
+          default: ${var.silver_schema}
+        - name: gold_schema
+          default: ${var.gold_schema}
+
+      tasks:
+        # Task 1: Run Salesforce Ingestion
+        - task_key: ingest_salesforce
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.retailq_project_ingestion_salesforce.id}
+
+        # Task 2: Run PostgreSQL Ingestion
+        - task_key: ingest_postgres
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.retailq_project_ingestion_postgresql.id}
+
+        # Task 3: Run Auto Loader & Transformations (Depends on external ingestions)
+        - task_key: bronze_to_gold
+          depends_on:
+            - task_key: ingest_salesforce
+            - task_key: ingest_postgres
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.retailq_project_bronze_to_gold.id}
+
+        # Task 4: Refresh dashboard (Depends on gold tables being updated)
+        - task_key: refresh_sales_dashboard
+          depends_on:
+            - task_key: bronze_to_gold
+          dashboard_task:
+            dashboard_id: ${resources.dashboards.retail_sales_analysis_dashboard.id}
+

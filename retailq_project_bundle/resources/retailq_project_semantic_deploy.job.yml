@@ -1,0 +1,22 @@
+# resources/retailq_project_semantic.job.yml
+resources:
+  jobs:
+    retailq_project_semantic_deploy:
+      
+      name: retailq_project_semantic_deploy
+
+      email_notifications:
+        on_failure:
+          - kieu.ky@outlook.com
+
+      tasks:
+        - task_key: deploy_retailq_metrics
+          sql_task:
+            warehouse_id: ${var.warehouse_id}
+            file:
+              path: ../src/semantic/semantic_retailq_metrics.sql
+            parameters:
+              catalog: ${var.catalog}
+              gold_schema: ${var.gold_schema}
+              semantic_schema: ${var.semantic_schema}
+              

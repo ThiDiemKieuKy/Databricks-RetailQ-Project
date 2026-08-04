@@ -1,0 +1,36 @@
+resources:
+  pipelines:
+    retailq_project_ingestion_postgresql:
+      name: retailq_project_ingestion_postgreSql
+      catalog: retailq_dev
+      channel: PREVIEW
+      ingestion_definition:
+        connection_name: retailq_project_postgre
+        objects:
+          - table:
+              destination_catalog: retailq_dev
+              destination_schema: bronze
+              source_catalog: neondb
+              source_schema: public
+              source_table: inventory
+              table_configuration:
+                primary_keys:
+                  - inventory_id
+                query_based_connector_config:
+                  cursor_columns:
+                    - last_stock_update
+          - table:
+              destination_catalog: retailq_dev
+              destination_schema: bronze
+              source_catalog: neondb
+              source_schema: public
+              source_table: product_catalog
+              table_configuration:
+                primary_keys:
+                  - product_id
+                query_based_connector_config:
+                  cursor_columns:
+                    - updated_at
+                scd_type: SCD_TYPE_2
+        source_type: POSTGRESQL
+      schema: bronze

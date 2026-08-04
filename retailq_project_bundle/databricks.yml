@@ -1,0 +1,66 @@
+# This is a Declarative Automation Bundle definition for retailq_project_bundle.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+bundle:
+  name: retailq_project_bundle
+
+include:
+#  - resources/retailq_project_bundle_etl.pipeline.yml
+  - resources/*.yml
+
+# Variable declarations. These variables are assigned in the dev/prod targets below.
+variables:
+  catalog:
+    description: The catalog to use
+    default: retailq_dev
+
+  bronze_schema:
+    description: "Schema used by the blob_to_bronze ingestion layer"
+    default: bronze
+ 
+  silver_schema:
+    description: "Schema used by the bronze_to_silver transformation layer"
+    default: silver
+
+  gold_schema:
+    description: "Schema used by the silver_to_gold transformation layer"
+    default: gold
+
+  semantic_schema:
+    description: "Schema used by the silver_to_gold transformation layer"
+    default: semantic
+
+  warehouse_id:
+    description: "SQL warehouse ID used for dashboard refresh"
+    default: "7107da02d075407e"
+
+targets:
+  dev:
+    # The default target uses 'mode: development' to create a development copy.
+    # - Deployed resources get prefixed with '[dev my_user_name]'
+    # - Any job schedules and triggers are paused by default.
+    # See also https://docs.databricks.com/dev-tools/bundles/deployment-modes.html.
+    mode: development
+    default: true
+    workspace:
+      host: https://dbc-98fbbe3f-dea0.cloud.databricks.com
+    presets:
+      # This completely overrides the default [dev username] prefix
+      name_prefix: "dev_${workspace.current_user.short_name}_"
+    variables:
+      catalog: retailq_dev
+      
+  prod:
+    mode: production
+    workspace:
+      host: https://dbc-98fbbe3f-dea0.cloud.databricks.com
+      # We explicitly deploy to /Workspace/Users/thidiemkieu.ky@gmail.com to make sure we only have a single copy.
+      root_path: /Workspace/Users/thidiemkieu.ky@gmail.com/.bundle/${bundle.name}/${bundle.target}
+    presets:
+      # This completely overrides the default [dev username] prefix
+      name_prefix: "prod_"
+    variables:
+      catalog: retailq_prod
+      
+    permissions:
+      - user_name: thidiemkieu.ky@gmail.com
+        level: CAN_MANAGE

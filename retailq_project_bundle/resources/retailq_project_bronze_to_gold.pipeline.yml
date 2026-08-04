@@ -1,0 +1,54 @@
+resources:
+  pipelines:
+    retailq_project_bronze_to_gold:
+      name: retailq_project_bronze_to_gold
+      catalog: ${var.catalog}
+      schema: ${var.bronze_schema}
+      serverless: true
+      root_path: "../src/bronze_to_gold_etl"
+
+      configuration:
+        bronze_schema: ${var.bronze_schema}
+        silver_schema: ${var.silver_schema}
+        gold_schema: ${var.gold_schema}
+
+      libraries:
+        # 1. Ingest CSV using Auto Loader to Bronze
+        - file:
+            path: ../src/bronze_to_gold_etl/blob_to_bronze/retailq_project_ingestion_blob.py
+        # 2. Transform Bronze to Silver - product_category
+        - file:
+            path: ../src/bronze_to_gold_etl/bronze_to_silver/retailq_project_bronze_to_silver_product_category.py
+        # 3. Transform Bronze to Silver - inventory
+        - file:
+            path: ../src/bronze_to_gold_etl/bronze_to_silver/retailq_project_bronze_to_silver_inventory.py
+        # 4. Transform Bronze to Silver - account
+        - file:
+            path: ../src/bronze_to_gold_etl/bronze_to_silver/retailq_project_bronze_to_silver_account.py
+        # 5. Transform Bronze to Silver - opportunity
+        - file:
+            path: ../src/bronze_to_gold_etl/bronze_to_silver/retailq_project_bronze_to_silver_opportunity.py
+        # 6. Transform Bronze to Silver - transactions
+        - file:
+            path: ../src/bronze_to_gold_etl/bronze_to_silver/retailq_project_bronze_to_silver_transactions.py
+        # 7. Transform Silver to Gold - fact_sales
+        - file:
+            path: ../src/bronze_to_gold_etl/silver_to_gold/retailq_project_fact_sales.py
+        # 8. Transform Silver to Gold - dim_customer
+        - file:
+            path: ../src/bronze_to_gold_etl/silver_to_gold/retailq_project_dim_customer.py
+        # 9. Transform Silver to Gold - dim_product
+        - file:
+            path: ../src/bronze_to_gold_etl/silver_to_gold/retailq_project_dim_product.py
+        # 10. Transform Silver to Gold - fact_inventory
+        - file:
+            path: ../src/bronze_to_gold_etl/silver_to_gold/retailq_project_fact_inventory.py
+        # 11. Transform Silver to Gold - dim_calendar
+        - file:
+            path: ../src/bronze_to_gold_etl/silver_to_gold/retailq_project_dim_calendar.py
+                 
+      environment:
+        dependencies:
+          # We include every dependency defined by pyproject.toml by defining an editable environment
+          # that points to the folder where pyproject.toml is deployed.
+          - --editable ${workspace.file_path}

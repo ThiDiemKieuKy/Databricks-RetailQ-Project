@@ -11,3 +11,7 @@ One Spark Declarative Pipeline handles:
 	• Auto Loader ingestion from blob storage → bronze
 	• Bronze → Silver transformations (cleaning, deduplication, conforming)
 Silver → Gold aggregations (business metrics, star schema)
+
+===============================================================
+initial step :
+	ALTER TABLE bronze.account SET TBLPROPERTIES (delta.enableChangeDataFeed = true)
