@@ -1,6 +1,7 @@
 from pyspark import pipelines as dp
 from pyspark.sql.functions import current_timestamp
 
+catalog = spark.conf.get("catalog")   # "catalog"
 
 @dp.table(
     name="transactions",
@@ -11,8 +12,8 @@ def ingestion_blob():
         spark.readStream
         .format("cloudFiles")
         .option("cloudFiles.format", "csv")
-        .option("cloudFiles.schemaLocation","/Volumes/retailq_dev/volumes/blob_source/schema")
+        .option("cloudFiles.schemaLocation",f"/Volumes/{catalog}/volumes/blob_source/schema")
         .option("cloudFiles.schemaEvolutionMode", "addNewColumns")
-        .load("/Volumes/retailq_dev/volumes/blob_source/transactions_source/")
+        .load(f"/Volumes/{catalog}/volumes/blob_source/transactions_source/")
         .withColumn("ingestion_timestamp", current_timestamp())
     )
