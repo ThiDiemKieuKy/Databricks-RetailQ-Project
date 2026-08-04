@@ -2,14 +2,14 @@ resources:
   pipelines:
     retailq_project_ingestion_postgresql:
       name: retailq_project_ingestion_postgreSql
-      catalog: retailq_dev
+      catalog: ${var.catalog}
       channel: PREVIEW
       ingestion_definition:
         connection_name: retailq_project_postgre
         objects:
           - table:
-              destination_catalog: retailq_dev
-              destination_schema: bronze
+              destination_catalog: ${var.catalog}
+              destination_schema: ${var.bronze_schema}
               source_catalog: neondb
               source_schema: public
               source_table: inventory
@@ -20,8 +20,8 @@ resources:
                   cursor_columns:
                     - last_stock_update
           - table:
-              destination_catalog: retailq_dev
-              destination_schema: bronze
+              destination_catalog: ${var.catalog}
+              destination_schema: ${var.bronze_schema}
               source_catalog: neondb
               source_schema: public
               source_table: product_catalog
@@ -33,4 +33,4 @@ resources:
                     - updated_at
                 scd_type: SCD_TYPE_2
         source_type: POSTGRESQL
-      schema: bronze
+      schema: ${var.bronze_schema}
