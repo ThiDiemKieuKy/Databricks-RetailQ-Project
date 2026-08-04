@@ -2,22 +2,22 @@ resources:
   pipelines:
     retailq_project_ingestion_salesforce:
       name: retailq_project_ingestion_salesforce
-      catalog: retailq_dev
+      catalog: ${var.catalog}
       channel: CURRENT
       ingestion_definition:
         connection_name: retailq_project_salesforce_to_bronze
         objects:
           - table:
-              destination_catalog: retailq_dev
-              destination_schema: bronze
+              destination_catalog: ${var.catalog}
+              destination_schema: ${var.bronze_schema}
               source_schema: objects
               source_table: Account
               table_configuration:
                 scd_type: SCD_TYPE_2
           - table:
-              destination_catalog: retailq_dev
-              destination_schema: bronze
+              destination_catalog: ${var.catalog}
+              destination_schema: ${var.bronze_schema}
               source_schema: objects
               source_table: Opportunity
         source_type: SALESFORCE
-      schema: bronze
+      schema: ${var.bronze_schema}
